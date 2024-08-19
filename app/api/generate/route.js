@@ -9,7 +9,7 @@ const systemPrompt = `
     Your task is to implement the logic for generating the flashcards based on the provided payload.
     Once the flashcards are generated, you should return a JSON response with the generated flashcards.
     Make sure to handle any errors that may occur during the generation process and provide appropriate error messages in the response.
-
+    Only generates 10 flashcards
     Return in the following JSON format:
 
     {
@@ -20,27 +20,47 @@ const systemPrompt = `
     }
 `
 
+// export async function POST(req) {
+//     const openai = OpenAI()
+//     const data = await req.text()
+
+//     const completion = await openai.chat.completion.create({
+//         messages: [
+//             {
+//                 role: 'system',
+//                 content: systemPrompt,
+//             },
+//             {
+//                 role: 'user',
+//                 content: data,
+//             },
+//         ],
+//         model: 'gpt-3.5-turbo',
+//         response_format: 'json_object',
+//     })
+
+//     const flashcards = JSON.parse(completion.data.choices[0].message.content)
+
+//     return NextResponse.json(flashcards.flashcards)
+
+// }
+
 export async function POST(req) {
-    const openai = OpenAI()
+    const openai = new OpenAI()
     const data = await req.text()
-
-    const completion = await openai.chat.completion.create({
-        messages: [
-            {
-                role: 'system',
-                content: systemPrompt,
-            },
-            {
-                role: 'user',
-                content: data,
-            },
-        ],
-        model: 'gpt-3.5-turbo',
-        response_format: 'json_object',
+  
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: data },
+      ],
+      model: 'gpt-4o',
+      response_format: { type: 'json_object' },
     })
-
-    const flashcards = JSON.parse(completion.data.choices[0].message.content)
-
+  
+    // Parse the JSON response from the OpenAI API
+    const flashcards = JSON.parse(completion.choices[0].message.content)
+  
+    // Return the flashcards as a JSON response
     return NextResponse.json(flashcards.flashcards)
-
-}
+  }

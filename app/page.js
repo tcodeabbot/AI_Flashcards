@@ -1,46 +1,42 @@
-// import Image from "next/image";
 
-// export default function Home() {
-//   return (
-//     <div>
-//       <h1>Welcome to the Next.js Flashcard Generator</h1>
-//       <Image
-//         src="/flashcards.jpg"
-//         alt="Flashcards"
-//         width={800}
-//         height={500}
-//       />
-//     </div>
-//   );
-// }
-
-import Head from "next/head";
-import GradientWrapper from "app/ui/GradientWrapper";
-import CTA from "app/ui/CTA";
-import Features from "app/ui/Features";
-import FooterCTA from "app/ui/FooterCTA";
-import Hero from "app/ui/Hero";
-import LogoGrid from "app/ui/LogoGrid";
-import Testimonials from "app/ui/Testimonials";
-import ToolKit from "app/ui/ToolKit";
+"use client";
+import { AppBar, Toolbar, Typography, Container, Box, Button } from '@mui/material';
+import Link from 'next/link';
+import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 
 export default function Home() {
   return (
     <>
-      <Head>
-        <meta name='robots' content='index' />
-      </Head>
-      <Hero />
-      <LogoGrid />
-      <GradientWrapper>
-        <Features />
-        <CTA />
-      </GradientWrapper>
-      <ToolKit />
-      <GradientWrapper>
-        <Testimonials />
-      </GradientWrapper>
-      <FooterCTA />
+      
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" style={{flexGrow: 1}}>
+            Flashcard SaaS
+          </Typography>
+          <SignedOut>
+            <Button color="inherit" href="/sign-in">Login</Button>
+            <Button color="inherit" href="/sign-up">Sign Up</Button>
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+        </Toolbar>
+      </AppBar>
+
+      <Container maxWidth="lg" sx={{ textAlign: "center", mt: 8 }}>
+        <Typography variant="h2" gutterBottom>
+          Welcome to Flashcard SaaS
+        </Typography>
+        <Typography variant="h5" gutterBottom>
+          The easiest way to create flashcards from your text.
+        </Typography>
+        <Button variant="contained" color="primary" href="/generate" sx={{ mt: 4, mr: 2 }}>
+          Get Started
+        </Button>
+        <Button variant="outlined" color="primary" sx={{ mt: 4 }}>
+          Learn More
+        </Button>
+      </Container>
     </>
   );
 }

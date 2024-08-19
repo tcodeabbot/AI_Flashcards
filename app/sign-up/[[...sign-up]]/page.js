@@ -1,26 +1,22 @@
 import React from 'react';
-import { Container, Typography, AppBar, Toolbar, Button } from '@mui/material';
+import { Container, Typography, AppBar, Toolbar, Button, Box } from '@mui/material';
 import { SignUp } from '@clerk/nextjs';
 import Link from 'next/link';
-import "../../../globals.css"; // Import global styles for consistency
+import "../../globals.css"; // Import global styles for consistency
 
 export default function SignUpPage() {
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: "#2c3e50" }}>
+      <AppBar position="static" sx={{ backgroundColor: "#1e88e5" }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
             Flashcard SaaS
           </Typography>
-          <Button color="inherit" sx={{ textTransform: "none" }}>
-            <Link href="/sign-in" passHref>
-              Login
-            </Link>
+          <Button color="inherit" component={Link} href="/sign-in" sx={{ textTransform: "none" }}>
+            Login
           </Button>
-          <Button color="inherit" sx={{ textTransform: "none" }}>
-            <Link href="/sign-up" passHref>
-              Sign Up
-            </Link>
+          <Button color="inherit" component={Link} href="/sign-up" sx={{ textTransform: "none" }}>
+            Sign Up
           </Button>
         </Toolbar>
       </AppBar>

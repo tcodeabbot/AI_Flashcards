@@ -1,5 +1,6 @@
 "use client";
 
+import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/nextjs';
 import { useState } from "react";
 import db from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
@@ -36,15 +37,6 @@ export default function Generate() {
       }
 
       const data = await response.json();
-
-      // Log the raw response to inspect its structure
-      console.log("API Response Data:", data);
-
-      // Check if flashcards is indeed an array
-      if (!Array.isArray(data.flashcards)) {
-        throw new Error("The response did not return an array for flashcards.");
-      }
-
       const flashcards = data.flashcards;
 
       if (flashcards.length === 0) {
@@ -70,36 +62,46 @@ export default function Generate() {
   };
 
   return (
-    <div className="container">
-      <header className="header">
-        <h1>Flashcard Generator</h1>
-        <p>Generate flashcards based on the text you provide and organize them into categories.</p>
-      </header>
-      <div className="input-area">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Enter your content"
-          rows="5"
-        />
-      </div>
-      <button className="generate-button" onClick={handleSubmit}>
-        Generate Flashcards
-      </button>
+    <>
+      {/* Only render this page if the user is signed in */}
+      <SignedIn>
+        <div className="container">
+          <header className="header">
+            <h1>Flashcard Generator</h1>
+            <p>Generate flashcards based on the text you provide and organize them into categories.</p>
+          </header>
+          <div className="input-area">
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Enter your content"
+              rows="5"
+            />
+          </div>
+          <button className="generate-button" onClick={handleSubmit}>
+            Generate Flashcards
+          </button>
 
-      <div className="flashcard-container">
-        {Object.entries(flashcards).map(([category, flashcardsArray]) => (
-          <div key={category}>
-            <h2 className="flashcard-category">{category}</h2>
-            {flashcardsArray.map((flashcard, index) => (
-              <div className="flashcard" key={index}>
-                <h3>{flashcard.front}</h3>
-                <p>{flashcard.back}</p>
+          <div className="flashcard-container">
+            {Object.entries(flashcards).map(([category, flashcardsArray]) => (
+              <div key={category}>
+                <h2 className="flashcard-category">{category}</h2>
+                {flashcardsArray.map((flashcard, index) => (
+                  <div className="flashcard" key={index}>
+                    <h3>{flashcard.front}</h3>
+                    <p>{flashcard.back}</p>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-        ))}
-      </div>
-    </div>
+        </div>
+      </SignedIn>
+
+      {/* Redirect to sign-in page if the user is not signed in */}
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
   );
 }

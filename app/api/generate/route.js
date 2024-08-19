@@ -2,45 +2,68 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 const systemPrompt = `
-    You are a flashcard creator for students.
-    You have been tasked with creating an API route for generating flashcards.
-    Your route should accept a POST request with a JSON payload containing the necessary information for generating the flashcards.
-    The payload should include the flashcard category, question, and answer.
-    Your task is to implement the logic for generating the flashcards based on the provided payload.
-    Once the flashcards are generated, you should return a JSON response with the generated flashcards.
-    Make sure to handle any errors that may occur during the generation process and provide appropriate error messages in the response.
+You are a flashcard creator for students.
+You should generate flashcards in JSON format based on a given text input.
+Each flashcard should have a "front" (question) and "back" (answer).
 
-    Return in the following JSON format:
+Ensure you only respond with JSON in this format:
 
-    {
-        "flashcards": [{
-            "front": str,
-            "back: str
-}]
-    }
-`
+{
+    "flashcards": [
+        {
+            "front": "What is the capital of France?",
+            "back": "Paris"
+        },
+        {
+            "front": "What is 2 + 2?",
+            "back": "4"
+        }
+    ]
+}
+
+Only return JSON. Do not include any additional text or explanations.
+`;
 
 export async function POST(req) {
-    const openai = OpenAI()
-    const data = await req.text()
+  const openai = new OpenAI({
+    apiKey: process.env.OPEN_AI_API_KEY,
+  });
 
-    const completion = await openai.chat.completion.create({
-        messages: [
-            {
-                role: 'system',
-                content: systemPrompt,
-            },
-            {
-                role: 'user',
-                content: data,
-            },
-        ],
-        model: 'gpt-3.5-turbo',
-        response_format: 'json_object',
-    })
+  try {
+    const data = await req.text();
 
-    const flashcards = JSON.parse(completion.data.choices[0].message.content)
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: data },
+      ],
+      model: "gpt-3.5-turbo",
+    });
 
-    return NextResponse.json(flashcards.flashcards)
+    // Log the raw response from OpenAI
+    console.log("Raw OpenAI response:", completion.choices[0].message.content);
 
+    let flashcards;
+    try {
+      // Attempt to parse the response as JSON
+      flashcards = JSON.parse(completion.choices[0].message.content);
+    } catch (parseError) {
+      console.error("Error parsing OpenAI response:", parseError);
+      throw new Error("Failed to parse OpenAI response. Ensure it returns valid JSON.");
+    }
+
+    // Validate that flashcards is an array
+    if (!Array.isArray(flashcards.flashcards)) {
+      console.error("Parsed response:", flashcards);
+      throw new Error("The response did not return an array for flashcards.");
+    }
+
+    return NextResponse.json({ flashcards: flashcards.flashcards });
+  } catch (error) {
+    console.error("Error generating flashcards:", error);
+    return NextResponse.json(
+      { error: "Failed to generate flashcards. Please try again." },
+      { status: 500 }
+    );
+  }
 }
